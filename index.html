@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Status Armazenagem</title>
+
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #0f172a;
+      --accent: #2563eb;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #dc2626;
+      --info: #0891b2;
+      --purple: #7c3aed;
+      --border: #e5e7eb;
+      --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .upload-card,
+    .filter-card,
+    .table-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .upload-card {
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    .upload-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    input[type="file"] {
+      border: 1px dashed #cbd5e1;
+      padding: 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      min-width: 280px;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .filter-card {
+      padding: 18px 20px;
+      margin-bottom: 22px;
+    }
+
+    .filter-section {
+      margin-bottom: 18px;
+    }
+
+    .filter-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .filter-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .filter-title {
+      font-weight: 800;
+      color: var(--primary);
+      font-size: 15px;
+    }
+
+    .filter-summary {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: var(--primary);
+      padding: 10px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      transition: 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 38px;
+    }
+
+    .pill:hover {
+      transform: translateY(-1px);
+      border-color: #cbd5e1;
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+    }
+
+    .pill.active {
+      color: #ffffff;
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+    }
+
+    .pill.local-bfmz.active {
+      background: var(--purple);
+      border-color: var(--purple);
+    }
+
+    .pill.local-bfse.active {
+      background: var(--info);
+      border-color: var(--info);
+    }
+
+    .pill.local-bfpp.active {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .pill.local-efa.active {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .pill.local-outros.active {
+      background: #475569;
+      border-color: #475569;
+    }
+
+    .pill.aging-ok.active {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .pill.aging-alerta.active {
+      background: var(--warning);
+      border-color: var(--warning);
+    }
+
+    .pill.aging-fora.active {
+      background: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .pill.serie-bo.active {
+      background: var(--warning);
+      border-color: var(--warning);
+    }
+
+    .pill.serie-est.active {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+   
+.pill-count {
+  display: none;
+}
+
+
+    .pill:not(.active) .pill-count {
+      color: var(--muted);
+      background: #eef2f7;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kpi-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .kpi-main {
+      margin-top: 16px;
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.2;
+    }
+
+    .kpi-main span {
+      color: var(--accent);
+    }
+
+    .kpi-secondary {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .bo {
+      border-top: 5px solid var(--warning);
+    }
+
+    .es {
+      border-top: 5px solid var(--success);
+    }
+
+    .total {
+      border-top: 5px solid var(--accent);
+    }
+
+    .status {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .error {
+      color: #b91c1c;
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .table-card {
+      overflow: hidden;
+    }
+
+    .table-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .table-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .search-input {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      min-width: 260px;
+      outline: none;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      max-height: 430px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      z-index: 1;
+      color: var(--primary);
+    }
+
+    tr:hover td {
+      background: #f9fafb;
+    }
+
+    .empty {
+      padding: 24px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .print-actions {
+      padding: 16px 20px 20px;
+      display: flex;
+      justify-content: flex-end;
+      border-top: 1px solid var(--border);
+      background: #ffffff;
+    }
+
+    .print-button {
+      appearance: none;
+      border: 0;
+      background: var(--primary);
+      color: #ffffff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+      transition: 0.18s ease;
+    }
+
+    .print-button:hover {
+      transform: translateY(-1px);
+      background: #111827;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        margin: 0;
+      }
+
+      body * {
+        visibility: hidden;
+      }
+
+      .table-card,
+      .table-card * {
+        visibility: visible;
+      }
+
+      .table-card {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .table-header {
+        display: block;
+        border-bottom: 1px solid #000000;
+        padding: 8px 0;
+      }
+
+      .table-title {
+        font-size: 16px;
+        font-weight: 800;
+        color: #000000;
+      }
+
+      .search-input,
+      .print-actions {
+        display: none !important;
+      }
+
+      .table-wrap {
+        max-height: none;
+        overflow: visible;
+      }
+
+      table {
+        width: 100%;
+        font-size: 11px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border: 1px solid #999999;
+        padding: 5px 6px;
+        color: #000000;
+        white-space: normal;
+      }
+
+      th {
+        position: static;
+        background: #eeeeee !important;
+        color: #000000;
+      }
+
+      tr:hover td {
+        background: transparent;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <section class="header">
+      <h1>Status Armazenagem</h1>
+      <div class="subtitle">
+        Leitor CSV com KPIs de pendência, filtros por local, aging e visão por Tipo/Série MBB.
+      </div>
+    </section>
+
+    <section class="upload-card">
+      <div class="upload-row">
+        <input id="csvFile" type="file" accept=".csv,text/csv">
+
+        <div class="hint">
+          Colunas esperadas, com reconhecimento flexível:<br>
+          <strong>Disponível</strong>,
+          <strong>Nota Fiscal/GREC</strong>,
+          <strong>Tipo/Série MBB</strong>,
+          <strong>Local</strong> e
+          <strong>Aging/Dias em estoque</strong>.
+        </div>
+      </div>
+    </section>
+
+    <section class="filter-card">
+      <div class="filter-section">
+        <div class="filter-title-row">
+          <div class="filter-title">Filtros por local</div>
+          <div id="localFilterSummary" class="filter-summary">Todos os locais selecionados</div>
+        </div>
+
+        <div class="pill-row" id="localPills">
+          <button class="pill active" data-filter-group="local" data-filter-value="all">
+            Todos <span class="pill-count" id="count-local-all">0</span>
+          </button>
+
+          <button class="pill local-bfmz" data-filter-group="local" data-filter-value="bfmz">
+            BFMZ - Mezanino <span class="pill-count" id="count-local-bfmz">0</span>
+          </button>
+
+          <button class="pill local-bfse" data-filter-group="local" data-filter-value="bfse">
+            BFSE - Selecionadora <span class="pill-count" id="count-local-bfse">0</span>
+          </button>
+
+          <button class="pill local-bfpp" data-filter-group="local" data-filter-value="bfpp">
+            BFPP - Porta Palete <span class="pill-count" id="count-local-bfpp">0</span>
+          </button>
+
+          <button class="pill local-efa" data-filter-group="local" data-filter-value="efa">
+            EFA - Blocado <span class="pill-count" id="count-local-efa">0</span>
+          </button>
+
+          <button class="pill local-outros" data-filter-group="local" data-filter-value="outros">
+            EF/EFI - Outros <span class="pill-count" id="count-local-outros">0</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title-row">
+          <div class="filter-title">Filtros por aging</div>
+          <div id="agingFilterSummary" class="filter-summary">Todos os prazos selecionados</div>
+        </div>
+
+        <div class="pill-row" id="agingPills">
+          <button class="pill active" data-filter-group="aging" data-filter-value="all">
+            Todos <span class="pill-count" id="count-aging-all">0</span>
+          </button>
+
+          <button class="pill aging-ok" data-filter-group="aging" data-filter-value="dentro">
+            Dentro do prazo <span class="pill-count" id="count-aging-dentro">0</span>
+          </button>
+
+          <button class="pill aging-alerta" data-filter-group="aging" data-filter-value="alerta">
+            Alerta <span class="pill-count" id="count-aging-alerta">0</span>
+          </button>
+
+          <button class="pill aging-fora" data-filter-group="aging" data-filter-value="fora">
+            Fora do prazo <span class="pill-count" id="count-aging-fora">0</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title-row">
+          <div class="filter-title">Filtros por Série MBB</div>
+          <div id="serieFilterSummary" class="filter-summary">Todas as séries selecionadas</div>
+        </div>
+
+        <div class="pill-row" id="seriePills">
+          <button class="pill active" data-filter-group="serie" data-filter-value="all">
+            Todos <span class="pill-count" id="count-serie-all">0</span>
+          </button>
+
+          <button class="pill serie-bo" data-filter-group="serie" data-filter-value="bo">
+            BO <span class="pill-count" id="count-serie-bo">0</span>
+          </button>
+
+          <button class="pill serie-est" data-filter-group="serie" data-filter-value="est">
+            EST <span class="pill-count" id="count-serie-est">0</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="kpi-grid">
+      <article class="kpi-card total">
+        <div>
+          <div class="kpi-label">Total pendente</div>
+          <div class="kpi-main">
+            <span id="totalGrecs">0</span> GRECs - <span id="totalPecas">0</span> peças
+          </div>
+        </div>
+
+        <div class="kpi-secondary">
+          Soma da coluna disponível + notas fiscais distintas, respeitando os filtros.
+        </div>
+      </article>
+
+      <article class="kpi-card bo">
+        <div>
+          <div class="kpi-label">Tipo/Série MBB - BO</div>
+          <div class="kpi-main">
+            <span id="boGrecs">0</span> GRECs - <span id="boPecas">0</span> peças
+          </div>
+        </div>
+
+        <div class="kpi-secondary">
+          Regra aging BO: 0-1 dia dentro, 2 dias alerta, acima de 2 fora.
+        </div>
+      </article>
+
+      <article class="kpi-card es">
+        <div>
+          <div class="kpi-label">Tipo/Série MBB - EST</div>
+          <div class="kpi-main">
+            <span id="esGrecs">0</span> GRECs - <span id="esPecas">0</span> peças
+          </div>
+        </div>
+
+        <div class="kpi-secondary">
+          Regra aging estoque: 0-4 dias dentro, 5 dias alerta, acima de 5 fora.
+        </div>
+      </article>
+    </section>
+
+    <div id="status" class="status">
+      Aguardando importação do arquivo CSV.
+    </div>
+
+    <section class="table-card">
+      <div class="table-header">
+        <div class="table-title">Prévia dos dados importados</div>
+        <input id="searchInput" class="search-input" type="text" placeholder="Pesquisar na prévia..." disabled>
+      </div>
+
+      <div id="tableContainer" class="table-wrap">
+        <div class="empty">Nenhum CSV carregado ainda.</div>
+      </div>
+
+      <div class="print-actions">
+        <button class="print-button" type="button" onclick="window.print()">
+          Imprimir lista
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const fileInput = document.getElementById('csvFile');
+    const statusBox = document.getElementById('status');
+    const tableContainer = document.getElementById('tableContainer');
+    const searchInput = document.getElementById('searchInput');
+    const localFilterSummary = document.getElementById('localFilterSummary');
+    const agingFilterSummary = document.getElementById('agingFilterSummary');
+    const serieFilterSummary = document.getElementById('serieFilterSummary');
+
+    let importedRows = [];
+    let importedHeaders = [];
+    let resolvedColumns = {};
+
+    const activeFilters = {
+      local: 'all',
+      aging: 'all',
+      serie: 'all'
+    };
+
+    const columnAliases = {
+      disponivel: [
+        'disponivel',
+        'disponível',
+        'qtd disponivel',
+        'qtd disponível',
+        'quantidade disponivel',
+        'quantidade disponível',
+        'saldo disponivel',
+        'saldo disponível',
+        'pecas',
+        'peças'
+      ],
+
+      notaFiscal: [
+        'nota fiscal',
+        'notas fiscais',
+        'nf',
+        'nfs',
+        'grec',
+        'grecs',
+        'numero nf',
+        'número nf',
+        'num nf',
+        'documento',
+        'nota',
+        'nfe',
+        'nf-e'
+      ],
+
+      tipoSerieMbb: [
+        'tipo/serie mbb',
+        'tipo/série mbb',
+        'tipo serie mbb',
+        'tipo série mbb',
+        'tipo-serie mbb',
+        'tipo-série mbb',
+        'serie mbb',
+        'série mbb',
+        'tipo mbb',
+        'tipo serie',
+        'tipo/série'
+      ],
+
+      local: [
+        'local',
+        'localizacao',
+        'localização',
+        'endereco',
+        'endereço',
+        'deposito',
+        'depósito',
+        'area',
+        'área',
+        'posicao',
+        'posição',
+        'local armazenagem',
+        'local de armazenagem',
+        'armazem',
+        'armazém'
+      ],
+
+      aging: [
+        'aging',
+        'ageing',
+        'dias',
+        'dias estoque',
+        'dias em estoque',
+        'tempo estoque',
+        'tempo em estoque',
+        'idade estoque',
+        'idade do estoque',
+        'aging estoque',
+        'aging armazenagem'
+      ]
+    };
+
+    const localLabels = {
+      all: 'Todos',
+      bfmz: 'BFMZ - Mezanino',
+      bfse: 'BFSE - Selecionadora',
+      bfpp: 'BFPP - Porta Palete',
+      efa: 'EFA - Blocado',
+      outros: 'EF/EFI - Outros'
+    };
+
+    const agingLabels = {
+      all: 'Todos',
+      dentro: 'Dentro do prazo',
+      alerta: 'Alerta',
+      fora: 'Fora do prazo'
+    };
+
+    const serieLabels = {
+      all: 'Todos',
+      bo: 'BO',
+      est: 'EST'
+    };
+
+    fileInput.addEventListener('change', handleFileUpload);
+    searchInput.addEventListener('input', applyFiltersAndRender);
+
+    document.querySelectorAll('.pill').forEach(function(button) {
+      button.addEventListener('click', function() {
+        const group = button.dataset.filterGroup;
+        const value = button.dataset.filterValue;
+
+        activeFilters[group] = value;
+
+        updateActivePills(group, value);
+        applyFiltersAndRender();
+      });
+    });
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        try {
+          const buffer = e.target.result;
+          let text = decodeFileBuffer(buffer, 'utf-8');
+
+          if (text.indexOf(' ') >= 0) {
+            text = decodeFileBuffer(buffer, 'windows-1252');
+          }
+
+          const parsed = parseCSV(text);
+
+          importedHeaders = parsed.headers;
+          importedRows = parsed.rows;
+
+          if (!importedRows.length) {
+            setStatus('CSV carregado, mas nenhum registro foi encontrado.', true);
+            resetKpis();
+            resetCounts();
+            renderTable([]);
+            return;
+          }
+
+          resolvedColumns = resolveRequiredColumns(importedHeaders);
+
+          activeFilters.local = 'all';
+          activeFilters.aging = 'all';
+          activeFilters.serie = 'all';
+
+          updateActivePills('local', 'all');
+          updateActivePills('aging', 'all');
+          updateActivePills('serie', 'all');
+
+          searchInput.disabled = false;
+          searchInput.value = '';
+
+          updateFilterCounts(importedRows);
+          applyFiltersAndRender();
+
+          setStatus(
+            importedRows.length.toLocaleString('pt-BR') +
+            ' linhas importadas com sucesso do arquivo: ' +
+            file.name
+          );
+        } catch (error) {
+          console.error(error);
+
+          resetKpis();
+          resetCounts();
+          renderTable([]);
+
+          searchInput.disabled = true;
+
+          setStatus(error.message || 'Erro ao processar o CSV.', true);
+        }
+      };
+
+      reader.onerror = function() {
+        setStatus('Não foi possível ler o arquivo selecionado.', true);
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    function decodeFileBuffer(buffer, encoding) {
+      try {
+        return new TextDecoder(encoding).decode(buffer);
+      } catch (error) {
+        return new TextDecoder('utf-8').decode(buffer);
+      }
+    }
+
+    function parseCSV(text) {
+      let cleanText = String(text || '');
+
+      cleanText = cleanText
+        .replace(/^\uFEFF/, '')
+        .replace(/\u0000/g, '')
+        .trim();
+
+      if (!cleanText) {
+        return {
+          headers: [],
+          rows: []
+        };
+      }
+
+      const delimiter = detectDelimiter(cleanText);
+      const parsedLines = parseDelimitedText(cleanText, delimiter);
+
+      if (!parsedLines.length) {
+        return {
+          headers: [],
+          rows: []
+        };
+      }
+
+      const headers = parsedLines[0].map(function(header) {
+        return String(header || '').trim();
+      });
+
+      const rows = [];
+
+      for (let i = 1; i < parsedLines.length; i++) {
+        const values = parsedLines[i];
+
+        if (!values || values.every(function(value) {
+          return String(value || '').trim() === '';
+        })) {
+          continue;
+        }
+
+        const row = {};
+
+        headers.forEach(function(header, index) {
+          row[header] = values[index] !== undefined
+            ? String(values[index]).trim()
+            : '';
+        });
+
+        rows.push(row);
+      }
+
+      return {
+        headers: headers,
+        rows: rows
+      };
+    }
+
+    function detectDelimiter(text) {
+      const firstLine = getFirstLine(text);
+      const delimiters = [';', ',', String.fromCharCode(9), '|'];
+
+      let selected = ';';
+      let bestCount = -1;
+
+      delimiters.forEach(function(delimiter) {
+        const count = splitRespectingQuotes(firstLine, delimiter).length - 1;
+
+        if (count > bestCount) {
+          bestCount = count;
+          selected = delimiter;
+        }
+      });
+
+      return selected;
+    }
+
+    function getFirstLine(text) {
+      let line = '';
+
+      for (let i = 0; i < text.length; i++) {
+        const code = text.charCodeAt(i);
+
+        if (code === 10 || code === 13) {
+          break;
+        }
+
+        line += text[i];
+      }
+
+      return line;
+    }
+
+    function splitRespectingQuotes(line, delimiter) {
+      const result = [];
+
+      let cell = '';
+      let insideQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const nextChar = line[i + 1];
+
+        if (char === '"' && insideQuotes && nextChar === '"') {
+          cell += '"';
+          i++;
+          continue;
+        }
+
+        if (char === '"') {
+          insideQuotes = !insideQuotes;
+          continue;
+        }
+
+        if (char === delimiter && !insideQuotes) {
+          result.push(cell);
+          cell = '';
+          continue;
+        }
+
+        cell += char;
+      }
+
+      result.push(cell);
+
+      return result;
+    }
+
+    function parseDelimitedText(text, delimiter) {
+      const result = [];
+
+      let row = [];
+      let cell = '';
+      let insideQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+        const code = text.charCodeAt(i);
+        const nextCode = text.charCodeAt(i + 1);
+
+        if (char === '"' && insideQuotes && nextChar === '"') {
+          cell += '"';
+          i++;
+          continue;
+        }
+
+        if (char === '"') {
+          insideQuotes = !insideQuotes;
+          continue;
+        }
+
+        if (char === delimiter && !insideQuotes) {
+          row.push(cell);
+          cell = '';
+          continue;
+        }
+
+        if ((code === 10 || code === 13) && !insideQuotes) {
+          if (code === 13 && nextCode === 10) {
+            i++;
+          }
+
+          row.push(cell);
+          result.push(row);
+
+          row = [];
+          cell = '';
+
+          continue;
+        }
+
+        cell += char;
+      }
+
+      row.push(cell);
+      result.push(row);
+
+      return result;
+    }
+
+    function resolveRequiredColumns(headers) {
+      const columns = {
+        disponivel: findColumn(headers, columnAliases.disponivel),
+        notaFiscal: findColumn(headers, columnAliases.notaFiscal),
+        tipoSerieMbb: findColumn(headers, columnAliases.tipoSerieMbb),
+        local: findColumn(headers, columnAliases.local),
+        aging: findColumn(headers, columnAliases.aging)
+      };
+
+      const missingColumns = [];
+
+      if (!columns.disponivel) {
+        missingColumns.push('Disponível');
+      }
+
+      if (!columns.notaFiscal) {
+        missingColumns.push('Nota Fiscal/GREC');
+      }
+
+      if (!columns.tipoSerieMbb) {
+        missingColumns.push('Tipo/Série MBB');
+      }
+
+      if (!columns.local) {
+        missingColumns.push('Local');
+      }
+
+      if (!columns.aging) {
+        missingColumns.push('Aging/Dias em estoque');
+      }
+
+      if (missingColumns.length) {
+        throw new Error(
+          'Coluna(s) não encontrada(s): ' +
+          missingColumns.join(', ') +
+          '. Cabeçalhos encontrados: ' +
+          headers.join(' | ')
+        );
+      }
+
+      return columns;
+    }
+
+    function applyFiltersAndRender() {
+      if (!importedRows.length || !resolvedColumns.disponivel) {
+        resetKpis();
+        renderTable([]);
+        return;
+      }
+
+      const filteredByPills = importedRows.filter(function(row) {
+        const localCategory = getLocalCategory(row[resolvedColumns.local]);
+        const agingCategory = getAgingCategory(row);
+        const serieCategory = getSerieCategory(row[resolvedColumns.tipoSerieMbb]);
+
+        const localMatches =
+          activeFilters.local === 'all' ||
+          localCategory === activeFilters.local;
+
+        const agingMatches =
+          activeFilters.aging === 'all' ||
+          agingCategory === activeFilters.aging;
+
+        const serieMatches =
+          activeFilters.serie === 'all' ||
+          serieCategory === activeFilters.serie;
+
+        return localMatches && agingMatches && serieMatches;
+      });
+
+      const searchTerm = normalizeValue(searchInput.value);
+
+      const filteredRows = searchTerm
+        ? filteredByPills.filter(function(row) {
+            return Object.values(row).some(function(value) {
+              return normalizeValue(value).indexOf(searchTerm) >= 0;
+            });
+          })
+        : filteredByPills;
+
+      calculateKpis(filteredRows);
+      renderTable(filteredRows);
+      updateFilterSummaries(filteredRows.length);
+    }
+
+    function calculateKpis(rows) {
+      const total = getMetrics(rows);
+
+      const boRows = rows.filter(function(row) {
+        return getSerieCategory(row[resolvedColumns.tipoSerieMbb]) === 'bo';
+      });
+
+      const esRows = rows.filter(function(row) {
+        return getSerieCategory(row[resolvedColumns.tipoSerieMbb]) === 'est';
+      });
+
+      const bo = getMetrics(boRows);
+      const es = getMetrics(esRows);
+
+      updateText('totalGrecs', total.grecs);
+      updateText('totalPecas', total.pecas);
+
+      updateText('boGrecs', bo.grecs);
+      updateText('boPecas', bo.pecas);
+
+      updateText('esGrecs', es.grecs);
+      updateText('esPecas', es.pecas);
+    }
+
+    function getMetrics(rows) {
+      const notasDistintas = new Set();
+      let pecas = 0;
+
+      rows.forEach(function(row) {
+        const nota = String(row[resolvedColumns.notaFiscal] || '').trim();
+        const disponivel = parseBrazilianNumber(row[resolvedColumns.disponivel]);
+
+        if (nota) {
+          notasDistintas.add(nota);
+        }
+
+        pecas += disponivel;
+      });
+
+      return {
+        grecs: notasDistintas.size,
+        pecas: pecas
+      };
+    }
+
+    function getLocalCategory(value) {
+      const local = normalizeValue(value).replace(/[\s_-]/g, '');
+
+      if (local.indexOf('bfmz') >= 0) {
+        return 'bfmz';
+      }
+
+      if (local.indexOf('bfse') >= 0) {
+        return 'bfse';
+      }
+
+      if (local.indexOf('bfpp') >= 0) {
+        return 'bfpp';
+      }
+
+      if (local.indexOf('efa') >= 0) {
+        return 'efa';
+      }
+
+      if (local.indexOf('efi') >= 0 || local.indexOf('ef') >= 0) {
+        return 'outros';
+      }
+
+      return 'outros';
+    }
+
+    function getSerieCategory(value) {
+      const serie = normalizeValue(value)
+        .replace(/[\s_-]/g, '');
+
+      if (serie === 'bo') {
+        return 'bo';
+      }
+
+      if (
+        serie === 'es' ||
+        serie === 'est' ||
+        serie === 'estoque'
+      ) {
+        return 'est';
+      }
+
+      return 'outros';
+    }
+
+    function getAgingCategory(row) {
+      const tipoSerie = getSerieCategory(row[resolvedColumns.tipoSerieMbb]);
+      const aging = parseBrazilianNumber(row[resolvedColumns.aging]);
+
+      if (tipoSerie === 'bo') {
+        if (aging <= 1) {
+          return 'dentro';
+        }
+
+        if (aging === 2) {
+          return 'alerta';
+        }
+
+        return 'fora';
+      }
+
+      if (aging <= 4) {
+        return 'dentro';
+      }
+
+      if (aging === 5) {
+        return 'alerta';
+      }
+
+      return 'fora';
+    }
+
+    function updateFilterCounts(rows) {
+      const localCounts = {
+        all: rows.length,
+        bfmz: 0,
+        bfse: 0,
+        bfpp: 0,
+        efa: 0,
+        outros: 0
+      };
+
+      const agingCounts = {
+        all: rows.length,
+        dentro: 0,
+        alerta: 0,
+        fora: 0
+      };
+
+      const serieCounts = {
+        all: rows.length,
+        bo: 0,
+        est: 0
+      };
+
+      rows.forEach(function(row) {
+        const localCategory = getLocalCategory(row[resolvedColumns.local]);
+        const agingCategory = getAgingCategory(row);
+        const serieCategory = getSerieCategory(row[resolvedColumns.tipoSerieMbb]);
+
+        localCounts[localCategory] = (localCounts[localCategory] || 0) + 1;
+        agingCounts[agingCategory] = (agingCounts[agingCategory] || 0) + 1;
+
+        if (serieCounts[serieCategory] !== undefined) {
+          serieCounts[serieCategory] = serieCounts[serieCategory] + 1;
+        }
+      });
+
+      Object.entries(localCounts).forEach(function(entry) {
+        updateCount('count-local-' + entry[0], entry[1]);
+      });
+
+      Object.entries(agingCounts).forEach(function(entry) {
+        updateCount('count-aging-' + entry[0], entry[1]);
+      });
+
+      Object.entries(serieCounts).forEach(function(entry) {
+        updateCount('count-serie-' + entry[0], entry[1]);
+      });
+    }
+
+    function updateCount(id, value) {
+      const element = document.getElementById(id);
+
+      if (element) {
+        element.textContent = Number(value || 0).toLocaleString('pt-BR');
+      }
+    }
+
+    function resetCounts() {
+      document.querySelectorAll('.pill-count').forEach(function(element) {
+        element.textContent = '0';
+      });
+    }
+
+    function updateActivePills(group, activeValue) {
+      document.querySelectorAll('[data-filter-group="' + group + '"]').forEach(function(button) {
+        button.classList.toggle('active', button.dataset.filterValue === activeValue);
+      });
+    }
+
+    function updateFilterSummaries(filteredLength) {
+      localFilterSummary.textContent = activeFilters.local === 'all'
+        ? 'Todos os locais selecionados'
+        : 'Local selecionado: ' + localLabels[activeFilters.local];
+
+      agingFilterSummary.textContent = activeFilters.aging === 'all'
+        ? 'Todos os prazos selecionados'
+        : 'Aging selecionado: ' + agingLabels[activeFilters.aging];
+
+      serieFilterSummary.textContent = activeFilters.serie === 'all'
+        ? 'Todas as séries selecionadas'
+        : 'Série selecionada: ' + serieLabels[activeFilters.serie];
+
+      if (importedRows.length) {
+        setStatus(
+          filteredLength.toLocaleString('pt-BR') +
+          ' linhas exibidas após filtros. Base importada: ' +
+          importedRows.length.toLocaleString('pt-BR') +
+          ' linhas.'
+        );
+      }
+    }
+
+    function findColumn(headers, aliases) {
+      const normalizedAliases = aliases.map(normalizeHeader);
+
+      const exactMatch = headers.find(function(header) {
+        return normalizedAliases.indexOf(normalizeHeader(header)) >= 0;
+      });
+
+      if (exactMatch) {
+        return exactMatch;
+      }
+
+      return headers.find(function(header) {
+        const normalizedHeader = normalizeHeader(header);
+
+        return normalizedAliases.some(function(alias) {
+          return normalizedHeader.indexOf(alias) >= 0 ||
+                 alias.indexOf(normalizedHeader) >= 0;
+        });
+      }) || null;
+    }
+
+    function normalizeHeader(value) {
+      return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[_\-\/]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function normalizeValue(value) {
+      return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+    }
+
+    function parseBrazilianNumber(value) {
+      if (value === null || value === undefined) {
+        return 0;
+      }
+
+      let clean = String(value)
+        .trim()
+        .replace(/[^0-9,.-]/g, '');
+
+      if (!clean) {
+        return 0;
+      }
+
+      const hasComma = clean.indexOf(',') >= 0;
+      const hasDot = clean.indexOf('.') >= 0;
+
+      if (hasComma && hasDot) {
+        clean = clean.replace(/\./g, '').replace(',', '.');
+      } else if (hasComma) {
+        clean = clean.replace(',', '.');
+      }
+
+      const parsed = Number(clean);
+
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function updateText(id, value) {
+      document.getElementById(id).textContent = Number(value || 0).toLocaleString('pt-BR', {
+        maximumFractionDigits: 0
+      });
+    }
+
+    function resetKpis() {
+      [
+        'totalGrecs',
+        'totalPecas',
+        'boGrecs',
+        'boPecas',
+        'esGrecs',
+        'esPecas'
+      ].forEach(function(id) {
+        updateText(id, 0);
+      });
+    }
+
+    function setStatus(message, isError) {
+      statusBox.textContent = message;
+      statusBox.classList.toggle('error', !!isError);
+    }
+
+    function renderTable(rows) {
+      if (!rows.length || !importedHeaders.length) {
+        tableContainer.innerHTML = '<div class="empty">Nenhum dado para exibir.</div>';
+        return;
+      }
+
+      const maxRows = rows;
+
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const tbody = document.createElement('tbody');
+
+      const headerRow = document.createElement('tr');
+
+      importedHeaders.forEach(function(header) {
+        const th = document.createElement('th');
+        th.textContent = header;
+        headerRow.appendChild(th);
+      });
+
+      thead.appendChild(headerRow);
+
+      maxRows.forEach(function(row) {
+        const tr = document.createElement('tr');
+
+        importedHeaders.forEach(function(header) {
+          const td = document.createElement('td');
+          td.textContent = row[header] || '';
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(thead);
+      table.appendChild(tbody);
+
+      tableContainer.innerHTML = '';
+      tableContainer.appendChild(table);
+    }
+  </script>
+</body>
+</html>
