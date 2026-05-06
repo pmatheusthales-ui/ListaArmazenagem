@@ -212,11 +212,9 @@
       border-color: var(--success);
     }
 
-   
-.pill-count {
-  display: none;
-}
-
+    .pill-count {
+      display: none;
+    }
 
     .pill:not(.active) .pill-count {
       color: var(--muted);
@@ -316,12 +314,109 @@
       color: var(--primary);
     }
 
+    .table-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
     .search-input {
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 10px 12px;
       min-width: 260px;
       outline: none;
+    }
+
+    .column-filter {
+      position: relative;
+    }
+
+    .column-filter-button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: var(--primary);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .column-filter-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: #cbd5e1;
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+    }
+
+    .column-filter-button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .column-filter-panel {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 46px;
+      width: 330px;
+      max-height: 380px;
+      overflow-y: auto;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      z-index: 10;
+    }
+
+    .column-filter-panel.open {
+      display: block;
+    }
+
+    .column-filter-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .column-filter-actions button {
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: var(--primary);
+      border-radius: 8px;
+      padding: 7px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .column-filter-actions button:hover {
+      border-color: #cbd5e1;
+      background: #eef2f7;
+    }
+
+    .column-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 4px;
+      font-size: 13px;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .column-option:hover {
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+
+    .column-option input {
+      cursor: pointer;
     }
 
     .table-wrap {
@@ -427,6 +522,7 @@
       }
 
       .search-input,
+      .column-filter,
       .print-actions {
         display: none !important;
       }
@@ -468,6 +564,20 @@
 
       h1 {
         font-size: 28px;
+      }
+
+      .search-input {
+        min-width: 100%;
+      }
+
+      .table-actions {
+        width: 100%;
+      }
+
+      .column-filter-panel {
+        right: auto;
+        left: 0;
+        width: min(330px, calc(100vw - 40px));
       }
     }
   </style>
@@ -626,7 +736,25 @@
     <section class="table-card">
       <div class="table-header">
         <div class="table-title">Prévia dos dados importados</div>
-        <input id="searchInput" class="search-input" type="text" placeholder="Pesquisar na prévia..." disabled>
+
+        <div class="table-actions">
+          <input id="searchInput" class="search-input" type="text" placeholder="Pesquisar na prévia..." disabled>
+
+          <div class="column-filter">
+            <button id="columnFilterButton" class="column-filter-button" type="button" disabled>
+              Personalizar colunas
+            </button>
+
+            <div id="columnFilterPanel" class="column-filter-panel">
+              <div class="column-filter-actions">
+                <button type="button" id="selectAllColumns">Selecionar tudo</button>
+                <button type="button" id="clearAllColumns">Limpar</button>
+              </div>
+
+              <div id="columnFilterOptions"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="tableContainer" class="table-wrap">
@@ -650,8 +778,15 @@
     const agingFilterSummary = document.getElementById('agingFilterSummary');
     const serieFilterSummary = document.getElementById('serieFilterSummary');
 
+    const columnFilterButton = document.getElementById('columnFilterButton');
+    const columnFilterPanel = document.getElementById('columnFilterPanel');
+    const columnFilterOptions = document.getElementById('columnFilterOptions');
+    const selectAllColumns = document.getElementById('selectAllColumns');
+    const clearAllColumns = document.getElementById('clearAllColumns');
+
     let importedRows = [];
     let importedHeaders = [];
+    let visibleHeaders = [];
     let resolvedColumns = {};
 
     const activeFilters = {
@@ -736,7 +871,11 @@
         'idade estoque',
         'idade do estoque',
         'aging estoque',
-        'aging armazenagem'
+        'aging armazenagem',
+        'dias ag estocagem',
+        'dias ag armazenagem',
+        'dias aging estocagem',
+        'dias aging armazenagem'
       ]
     };
 
@@ -765,6 +904,41 @@
     fileInput.addEventListener('change', handleFileUpload);
     searchInput.addEventListener('input', applyFiltersAndRender);
 
+    columnFilterButton.addEventListener('click', function() {
+      columnFilterPanel.classList.toggle('open');
+    });
+
+    selectAllColumns.addEventListener('click', function() {
+      visibleHeaders = getDefaultDisplayHeaders(importedHeaders);
+
+      document.querySelectorAll('.column-checkbox').forEach(function(checkbox) {
+        checkbox.checked = visibleHeaders.indexOf(checkbox.value) >= 0;
+      });
+
+      applyFiltersAndRender();
+    });
+
+    clearAllColumns.addEventListener('click', function() {
+      visibleHeaders = [];
+
+      document.querySelectorAll('.column-checkbox').forEach(function(checkbox) {
+        checkbox.checked = false;
+      });
+
+      applyFiltersAndRender();
+    });
+
+    document.addEventListener('click', function(event) {
+      if (
+        columnFilterPanel &&
+        columnFilterButton &&
+        !columnFilterPanel.contains(event.target) &&
+        !columnFilterButton.contains(event.target)
+      ) {
+        columnFilterPanel.classList.remove('open');
+      }
+    });
+
     document.querySelectorAll('.pill').forEach(function(button) {
       button.addEventListener('click', function() {
         const group = button.dataset.filterGroup;
@@ -788,7 +962,7 @@
           const buffer = e.target.result;
           let text = decodeFileBuffer(buffer, 'utf-8');
 
-          if (text.indexOf(' ') >= 0) {
+          if (text.includes('�') || text.includes('Ã')) {
             text = decodeFileBuffer(buffer, 'windows-1252');
           }
 
@@ -806,6 +980,9 @@
           }
 
           resolvedColumns = resolveRequiredColumns(importedHeaders);
+          visibleHeaders = getDefaultDisplayHeaders(importedHeaders);
+
+          renderColumnFilterOptions();
 
           activeFilters.local = 'all';
           activeFilters.aging = 'all';
@@ -817,6 +994,7 @@
 
           searchInput.disabled = false;
           searchInput.value = '';
+          columnFilterButton.disabled = false;
 
           updateFilterCounts(importedRows);
           applyFiltersAndRender();
@@ -834,6 +1012,9 @@
           renderTable([]);
 
           searchInput.disabled = true;
+          columnFilterButton.disabled = true;
+          columnFilterPanel.classList.remove('open');
+          columnFilterOptions.innerHTML = '';
 
           setStatus(error.message || 'Erro ao processar o CSV.', true);
         }
@@ -1191,8 +1372,7 @@
     }
 
     function getSerieCategory(value) {
-      const serie = normalizeValue(value)
-        .replace(/[\s_-]/g, '');
+      const serie = normalizeValue(value).replace(/[\s_-]/g, '');
 
       if (serie === 'bo') {
         return 'bo';
@@ -1418,13 +1598,110 @@
       statusBox.classList.toggle('error', !!isError);
     }
 
+    function getDefaultDisplayHeaders(headers) {
+      let displayHeaders = headers.filter(function(header) {
+        return !isDiasAgEstocagemColumn(header);
+      });
+
+      displayHeaders = swapDataEntradaRemanejamento(displayHeaders);
+
+      return displayHeaders;
+    }
+
+    function isDiasAgEstocagemColumn(header) {
+      const normalized = normalizeHeader(header);
+
+      return normalized === 'dias ag estocagem' ||
+             normalized === 'dias ag armazenagem' ||
+             normalized === 'dias aging estocagem' ||
+             normalized === 'dias aging armazenagem';
+    }
+
+    function isDataEntradaColumn(header) {
+      const normalized = normalizeHeader(header);
+
+      return normalized === 'data de entrada' ||
+             normalized === 'dt entrada' ||
+             normalized === 'data entrada';
+    }
+
+    function isDataRemanejamentoColumn(header) {
+      const normalized = normalizeHeader(header);
+
+      return normalized === 'data de remanejamento' ||
+             normalized === 'dt remanejamento' ||
+             normalized === 'data remanejamento';
+    }
+
+    function swapDataEntradaRemanejamento(headers) {
+      const orderedHeaders = headers.slice();
+
+      const entradaIndex = orderedHeaders.findIndex(isDataEntradaColumn);
+      const remanejamentoIndex = orderedHeaders.findIndex(isDataRemanejamentoColumn);
+
+      if (entradaIndex >= 0 && remanejamentoIndex >= 0) {
+        const temp = orderedHeaders[entradaIndex];
+        orderedHeaders[entradaIndex] = orderedHeaders[remanejamentoIndex];
+        orderedHeaders[remanejamentoIndex] = temp;
+      }
+
+      return orderedHeaders;
+    }
+
+    function renderColumnFilterOptions() {
+      columnFilterOptions.innerHTML = '';
+
+      const defaultHeaders = getDefaultDisplayHeaders(importedHeaders);
+
+      defaultHeaders.forEach(function(header) {
+        const label = document.createElement('label');
+        label.className = 'column-option';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'column-checkbox';
+        checkbox.value = header;
+        checkbox.checked = visibleHeaders.indexOf(header) >= 0;
+
+        checkbox.addEventListener('change', function() {
+          if (checkbox.checked) {
+            if (visibleHeaders.indexOf(header) < 0) {
+              visibleHeaders.push(header);
+            }
+          } else {
+            visibleHeaders = visibleHeaders.filter(function(item) {
+              return item !== header;
+            });
+          }
+
+          visibleHeaders = swapDataEntradaRemanejamento(visibleHeaders);
+          applyFiltersAndRender();
+        });
+
+        const span = document.createElement('span');
+        span.textContent = header;
+
+        label.appendChild(checkbox);
+        label.appendChild(span);
+
+        columnFilterOptions.appendChild(label);
+      });
+    }
+
     function renderTable(rows) {
       if (!rows.length || !importedHeaders.length) {
         tableContainer.innerHTML = '<div class="empty">Nenhum dado para exibir.</div>';
         return;
       }
 
-      const maxRows = rows;
+      const headersToRender = visibleHeaders.length
+        ? swapDataEntradaRemanejamento(visibleHeaders)
+        : [];
+
+      if (!headersToRender.length) {
+        tableContainer.innerHTML = '<div class="empty">Nenhuma coluna selecionada para exibir.</div>';
+        return;
+      }
 
       const table = document.createElement('table');
       const thead = document.createElement('thead');
@@ -1432,7 +1709,7 @@
 
       const headerRow = document.createElement('tr');
 
-      importedHeaders.forEach(function(header) {
+      headersToRender.forEach(function(header) {
         const th = document.createElement('th');
         th.textContent = header;
         headerRow.appendChild(th);
@@ -1440,10 +1717,10 @@
 
       thead.appendChild(headerRow);
 
-      maxRows.forEach(function(row) {
+      rows.forEach(function(row) {
         const tr = document.createElement('tr');
 
-        importedHeaders.forEach(function(header) {
+        headersToRender.forEach(function(header) {
           const td = document.createElement('td');
           td.textContent = row[header] || '';
           tr.appendChild(td);
