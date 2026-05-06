@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Status Armazenagem</title>
 
   <style>
@@ -60,11 +60,17 @@
 
     .upload-card,
     .filter-card,
-    .table-card {
+    .table-card,
+    .kpi-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 18px;
       box-shadow: var(--shadow);
+    }
+
+    .upload-card,
+    .filter-card,
+    .table-card {
+      border-radius: 18px;
     }
 
     .upload-card {
@@ -162,63 +168,19 @@
       box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
     }
 
-    .pill.local-bfmz.active {
-      background: var(--purple);
-      border-color: var(--purple);
-    }
-
-    .pill.local-bfse.active {
-      background: var(--info);
-      border-color: var(--info);
-    }
-
-    .pill.local-bfpp.active {
-      background: var(--accent);
-      border-color: var(--accent);
-    }
-
-    .pill.local-efa.active {
-      background: var(--success);
-      border-color: var(--success);
-    }
-
-    .pill.local-outros.active {
-      background: #475569;
-      border-color: #475569;
-    }
-
-    .pill.aging-ok.active {
-      background: var(--success);
-      border-color: var(--success);
-    }
-
-    .pill.aging-alerta.active {
-      background: var(--warning);
-      border-color: var(--warning);
-    }
-
-    .pill.aging-fora.active {
-      background: var(--danger);
-      border-color: var(--danger);
-    }
-
-    .pill.serie-bo.active {
-      background: var(--warning);
-      border-color: var(--warning);
-    }
-
-    .pill.serie-est.active {
-      background: var(--success);
-      border-color: var(--success);
-    }
+    .pill.local-bfmz.active { background: var(--purple); border-color: var(--purple); }
+    .pill.local-bfse.active { background: var(--info); border-color: var(--info); }
+    .pill.local-bfpp.active { background: var(--accent); border-color: var(--accent); }
+    .pill.local-efa.active { background: var(--success); border-color: var(--success); }
+    .pill.local-outros.active { background: #475569; border-color: #475569; }
+    .pill.aging-ok.active { background: var(--success); border-color: var(--success); }
+    .pill.aging-alerta.active { background: var(--warning); border-color: var(--warning); }
+    .pill.aging-fora.active { background: var(--danger); border-color: var(--danger); }
+    .pill.serie-bo.active { background: var(--warning); border-color: var(--warning); }
+    .pill.serie-est.active { background: var(--success); border-color: var(--success); }
 
     .pill-count {
       display: none;
-    }
-
-    .pill:not(.active) .pill-count {
-      color: var(--muted);
-      background: #eef2f7;
     }
 
     .kpi-grid {
@@ -229,11 +191,8 @@
     }
 
     .kpi-card {
-      background: var(--card);
-      border: 1px solid var(--border);
       border-radius: 20px;
       padding: 22px;
-      box-shadow: var(--shadow);
       min-height: 150px;
       display: flex;
       flex-direction: column;
@@ -266,17 +225,9 @@
       font-size: 14px;
     }
 
-    .bo {
-      border-top: 5px solid var(--warning);
-    }
-
-    .es {
-      border-top: 5px solid var(--success);
-    }
-
-    .total {
-      border-top: 5px solid var(--accent);
-    }
+    .bo { border-top: 5px solid var(--warning); }
+    .es { border-top: 5px solid var(--success); }
+    .total { border-top: 5px solid var(--accent); }
 
     .status {
       background: #ffffff;
@@ -369,7 +320,7 @@
       border-radius: 14px;
       box-shadow: var(--shadow);
       padding: 12px;
-      z-index: 10;
+      z-index: 20;
     }
 
     .column-filter-panel.open {
@@ -395,11 +346,6 @@
       cursor: pointer;
     }
 
-    .column-filter-actions button:hover {
-      border-color: #cbd5e1;
-      background: #eef2f7;
-    }
-
     .column-option {
       display: flex;
       align-items: center;
@@ -413,10 +359,6 @@
     .column-option:hover {
       background: #f8fafc;
       border-radius: 8px;
-    }
-
-    .column-option input {
-      cursor: pointer;
     }
 
     .table-wrap {
@@ -444,12 +386,41 @@
       position: sticky;
       top: 0;
       background: #f8fafc;
-      z-index: 1;
+      z-index: 2;
       color: var(--primary);
+    }
+
+    .sortable-th {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sortable-th:hover {
+      background: #eef2f7;
+    }
+
+    .sort-icon {
+      margin-left: 6px;
+      color: var(--muted);
+      font-size: 11px;
     }
 
     tr:hover td {
       background: #f9fafb;
+    }
+
+    td.editable-cell {
+      cursor: text;
+    }
+
+    td.editable-cell:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+      background: #eff6ff !important;
+    }
+
+    td.edited-cell {
+      background: #fef3c7 !important;
     }
 
     .empty {
@@ -551,10 +522,6 @@
         background: #eeeeee !important;
         color: #000000;
       }
-
-      tr:hover td {
-        background: transparent;
-      }
     }
 
     @media (max-width: 980px) {
@@ -594,10 +561,10 @@
 
     <section class="upload-card">
       <div class="upload-row">
-        <input id="csvFile" type="file" accept=".csv,text/csv">
+        <input id="csvFile" type="file" accept=".csv,text/csv" />
 
         <div class="hint">
-          Colunas esperadas, com reconhecimento flexível:<br>
+          Colunas esperadas, com reconhecimento flexível:<br />
           <strong>Disponível</strong>,
           <strong>Nota Fiscal/GREC</strong>,
           <strong>Tipo/Série MBB</strong>,
@@ -614,30 +581,13 @@
           <div id="localFilterSummary" class="filter-summary">Todos os locais selecionados</div>
         </div>
 
-        <div class="pill-row" id="localPills">
-          <button class="pill active" data-filter-group="local" data-filter-value="all">
-            Todos <span class="pill-count" id="count-local-all">0</span>
-          </button>
-
-          <button class="pill local-bfmz" data-filter-group="local" data-filter-value="bfmz">
-            BFMZ - Mezanino <span class="pill-count" id="count-local-bfmz">0</span>
-          </button>
-
-          <button class="pill local-bfse" data-filter-group="local" data-filter-value="bfse">
-            BFSE - Selecionadora <span class="pill-count" id="count-local-bfse">0</span>
-          </button>
-
-          <button class="pill local-bfpp" data-filter-group="local" data-filter-value="bfpp">
-            BFPP - Porta Palete <span class="pill-count" id="count-local-bfpp">0</span>
-          </button>
-
-          <button class="pill local-efa" data-filter-group="local" data-filter-value="efa">
-            EFA - Blocado <span class="pill-count" id="count-local-efa">0</span>
-          </button>
-
-          <button class="pill local-outros" data-filter-group="local" data-filter-value="outros">
-            EF/EFI - Outros <span class="pill-count" id="count-local-outros">0</span>
-          </button>
+        <div class="pill-row">
+          <button class="pill active" data-filter-group="local" data-filter-value="all">Todos <span class="pill-count" id="count-local-all">0</span></button>
+          <button class="pill local-bfmz" data-filter-group="local" data-filter-value="bfmz">BFMZ - Mezanino <span class="pill-count" id="count-local-bfmz">0</span></button>
+          <button class="pill local-bfse" data-filter-group="local" data-filter-value="bfse">BFSE - Selecionadora <span class="pill-count" id="count-local-bfse">0</span></button>
+          <button class="pill local-bfpp" data-filter-group="local" data-filter-value="bfpp">BFPP - Porta Palete <span class="pill-count" id="count-local-bfpp">0</span></button>
+          <button class="pill local-efa" data-filter-group="local" data-filter-value="efa">EFA - Blocado <span class="pill-count" id="count-local-efa">0</span></button>
+          <button class="pill local-outros" data-filter-group="local" data-filter-value="outros">EF/EFI - Outros <span class="pill-count" id="count-local-outros">0</span></button>
         </div>
       </div>
 
@@ -647,22 +597,11 @@
           <div id="agingFilterSummary" class="filter-summary">Todos os prazos selecionados</div>
         </div>
 
-        <div class="pill-row" id="agingPills">
-          <button class="pill active" data-filter-group="aging" data-filter-value="all">
-            Todos <span class="pill-count" id="count-aging-all">0</span>
-          </button>
-
-          <button class="pill aging-ok" data-filter-group="aging" data-filter-value="dentro">
-            Dentro do prazo <span class="pill-count" id="count-aging-dentro">0</span>
-          </button>
-
-          <button class="pill aging-alerta" data-filter-group="aging" data-filter-value="alerta">
-            Alerta <span class="pill-count" id="count-aging-alerta">0</span>
-          </button>
-
-          <button class="pill aging-fora" data-filter-group="aging" data-filter-value="fora">
-            Fora do prazo <span class="pill-count" id="count-aging-fora">0</span>
-          </button>
+        <div class="pill-row">
+          <button class="pill active" data-filter-group="aging" data-filter-value="all">Todos <span class="pill-count" id="count-aging-all">0</span></button>
+          <button class="pill aging-ok" data-filter-group="aging" data-filter-value="dentro">Dentro do prazo <span class="pill-count" id="count-aging-dentro">0</span></button>
+          <button class="pill aging-alerta" data-filter-group="aging" data-filter-value="alerta">Alerta <span class="pill-count" id="count-aging-alerta">0</span></button>
+          <button class="pill aging-fora" data-filter-group="aging" data-filter-value="fora">Fora do prazo <span class="pill-count" id="count-aging-fora">0</span></button>
         </div>
       </div>
 
@@ -672,18 +611,10 @@
           <div id="serieFilterSummary" class="filter-summary">Todas as séries selecionadas</div>
         </div>
 
-        <div class="pill-row" id="seriePills">
-          <button class="pill active" data-filter-group="serie" data-filter-value="all">
-            Todos <span class="pill-count" id="count-serie-all">0</span>
-          </button>
-
-          <button class="pill serie-bo" data-filter-group="serie" data-filter-value="bo">
-            BO <span class="pill-count" id="count-serie-bo">0</span>
-          </button>
-
-          <button class="pill serie-est" data-filter-group="serie" data-filter-value="est">
-            EST <span class="pill-count" id="count-serie-est">0</span>
-          </button>
+        <div class="pill-row">
+          <button class="pill active" data-filter-group="serie" data-filter-value="all">Todos <span class="pill-count" id="count-serie-all">0</span></button>
+          <button class="pill serie-bo" data-filter-group="serie" data-filter-value="bo">BO <span class="pill-count" id="count-serie-bo">0</span></button>
+          <button class="pill serie-est" data-filter-group="serie" data-filter-value="est">EST <span class="pill-count" id="count-serie-est">0</span></button>
         </div>
       </div>
     </section>
@@ -696,10 +627,7 @@
             <span id="totalGrecs">0</span> GRECs - <span id="totalPecas">0</span> peças
           </div>
         </div>
-
-        <div class="kpi-secondary">
-          Soma da coluna disponível + notas fiscais distintas, respeitando os filtros.
-        </div>
+        <div class="kpi-secondary">Soma da coluna disponível + notas fiscais distintas, respeitando os filtros.</div>
       </article>
 
       <article class="kpi-card bo">
@@ -709,10 +637,7 @@
             <span id="boGrecs">0</span> GRECs - <span id="boPecas">0</span> peças
           </div>
         </div>
-
-        <div class="kpi-secondary">
-          Regra aging BO: 0-1 dia dentro, 2 dias alerta, acima de 2 fora.
-        </div>
+        <div class="kpi-secondary">Regra aging BO: 0-1 dia dentro, 2 dias alerta, acima de 2 fora.</div>
       </article>
 
       <article class="kpi-card es">
@@ -722,23 +647,18 @@
             <span id="esGrecs">0</span> GRECs - <span id="esPecas">0</span> peças
           </div>
         </div>
-
-        <div class="kpi-secondary">
-          Regra aging estoque: 0-4 dias dentro, 5 dias alerta, acima de 5 fora.
-        </div>
+        <div class="kpi-secondary">Regra aging estoque: 0-4 dias dentro, 5 dias alerta, acima de 5 fora.</div>
       </article>
     </section>
 
-    <div id="status" class="status">
-      Aguardando importação do arquivo CSV.
-    </div>
+    <div id="status" class="status">Aguardando importação do arquivo CSV.</div>
 
     <section class="table-card">
       <div class="table-header">
         <div class="table-title">Prévia dos dados importados</div>
 
         <div class="table-actions">
-          <input id="searchInput" class="search-input" type="text" placeholder="Pesquisar na prévia..." disabled>
+          <input id="searchInput" class="search-input" type="text" placeholder="Pesquisar na prévia..." disabled />
 
           <div class="column-filter">
             <button id="columnFilterButton" class="column-filter-button" type="button" disabled>
@@ -750,7 +670,6 @@
                 <button type="button" id="selectAllColumns">Selecionar tudo</button>
                 <button type="button" id="clearAllColumns">Limpar</button>
               </div>
-
               <div id="columnFilterOptions"></div>
             </div>
           </div>
@@ -762,9 +681,7 @@
       </div>
 
       <div class="print-actions">
-        <button class="print-button" type="button" onclick="window.print()">
-          Imprimir lista
-        </button>
+        <button class="print-button" type="button" onclick="window.print()">Imprimir lista</button>
       </div>
     </section>
   </main>
@@ -789,6 +706,11 @@
     let visibleHeaders = [];
     let resolvedColumns = {};
 
+    let sortState = {
+      column: null,
+      direction: null
+    };
+
     const activeFilters = {
       local: 'all',
       aging: 'all',
@@ -809,7 +731,6 @@
         'peças',
         'DisponÃ­vel'
       ],
-
       notaFiscal: [
         'nota fiscal',
         'notas fiscais',
@@ -825,7 +746,6 @@
         'nfe',
         'nf-e'
       ],
-
       tipoSerieMbb: [
         'tipo/serie mbb',
         'tipo/série mbb',
@@ -841,7 +761,6 @@
         'SÃ©rie',
         'Série'
       ],
-
       local: [
         'local',
         'localizacao',
@@ -859,7 +778,6 @@
         'armazem',
         'armazém'
       ],
-
       aging: [
         'aging',
         'ageing',
@@ -982,6 +900,11 @@
           resolvedColumns = resolveRequiredColumns(importedHeaders);
           visibleHeaders = getDefaultDisplayHeaders(importedHeaders);
 
+          sortState = {
+            column: null,
+            direction: null
+          };
+
           renderColumnFilterOptions();
 
           activeFilters.local = 'all';
@@ -1036,9 +959,7 @@
     }
 
     function parseCSV(text) {
-      let cleanText = String(text || '');
-
-      cleanText = cleanText
+      let cleanText = String(text || '')
         .replace(/^\uFEFF/, '')
         .replace(/\u0000/g, '')
         .trim();
@@ -1129,7 +1050,6 @@
 
     function splitRespectingQuotes(line, delimiter) {
       const result = [];
-
       let cell = '';
       let insideQuotes = false;
 
@@ -1158,13 +1078,11 @@
       }
 
       result.push(cell);
-
       return result;
     }
 
     function parseDelimitedText(text, delimiter) {
       const result = [];
-
       let row = [];
       let cell = '';
       let insideQuotes = false;
@@ -1226,25 +1144,11 @@
 
       const missingColumns = [];
 
-      if (!columns.disponivel) {
-        missingColumns.push('Disponível');
-      }
-
-      if (!columns.notaFiscal) {
-        missingColumns.push('Nota Fiscal/GREC');
-      }
-
-      if (!columns.tipoSerieMbb) {
-        missingColumns.push('Tipo/Série MBB');
-      }
-
-      if (!columns.local) {
-        missingColumns.push('Local');
-      }
-
-      if (!columns.aging) {
-        missingColumns.push('Aging/Dias em estoque');
-      }
+      if (!columns.disponivel) missingColumns.push('Disponível');
+      if (!columns.notaFiscal) missingColumns.push('Nota Fiscal/GREC');
+      if (!columns.tipoSerieMbb) missingColumns.push('Tipo/Série MBB');
+      if (!columns.local) missingColumns.push('Local');
+      if (!columns.aging) missingColumns.push('Aging/Dias em estoque');
 
       if (missingColumns.length) {
         throw new Error(
@@ -1265,6 +1169,15 @@
         return;
       }
 
+      let filteredRows = getCurrentFilteredRowsWithoutRender();
+      filteredRows = sortRows(filteredRows);
+
+      calculateKpis(filteredRows);
+      renderTable(filteredRows);
+      updateFilterSummaries(filteredRows.length);
+    }
+
+    function getCurrentFilteredRowsWithoutRender() {
       const filteredByPills = importedRows.filter(function(row) {
         const localCategory = getLocalCategory(row[resolvedColumns.local]);
         const agingCategory = getAgingCategory(row);
@@ -1287,17 +1200,80 @@
 
       const searchTerm = normalizeValue(searchInput.value);
 
-      const filteredRows = searchTerm
+      return searchTerm
         ? filteredByPills.filter(function(row) {
             return Object.values(row).some(function(value) {
               return normalizeValue(value).indexOf(searchTerm) >= 0;
             });
           })
         : filteredByPills;
+    }
 
-      calculateKpis(filteredRows);
-      renderTable(filteredRows);
-      updateFilterSummaries(filteredRows.length);
+    function sortRows(rows) {
+      if (!sortState.column || !sortState.direction) {
+        return rows;
+      }
+
+      const column = sortState.column;
+      const direction = sortState.direction;
+
+      return rows.slice().sort(function(a, b) {
+        const valueA = a[column] || '';
+        const valueB = b[column] || '';
+
+        const cleanA = String(valueA).trim();
+        const cleanB = String(valueB).trim();
+
+        const numberA = parseBrazilianNumber(valueA);
+        const numberB = parseBrazilianNumber(valueB);
+
+        const isNumericA = cleanA !== '' && /^-?[\d.,]+$/.test(cleanA.replace(/\s/g, ''));
+        const isNumericB = cleanB !== '' && /^-?[\d.,]+$/.test(cleanB.replace(/\s/g, ''));
+
+        let comparison = 0;
+
+        if (isNumericA && isNumericB) {
+          comparison = numberA - numberB;
+        } else {
+          comparison = normalizeValue(valueA).localeCompare(
+            normalizeValue(valueB),
+            'pt-BR',
+            { numeric: true }
+          );
+        }
+
+        return direction === 'asc' ? comparison : comparison * -1;
+      });
+    }
+
+    function toggleSortColumn(header) {
+      if (sortState.column !== header) {
+        sortState.column = header;
+        sortState.direction = 'asc';
+      } else if (sortState.direction === 'asc') {
+        sortState.direction = 'desc';
+      } else {
+        sortState.column = null;
+        sortState.direction = null;
+      }
+
+      applyFiltersAndRender();
+    }
+
+    function getSortIcon(header) {
+      if (sortState.column !== header) {
+        return '↕';
+      }
+
+      if (sortState.direction === 'asc') {
+        return '▲';
+      }
+
+      if (sortState.direction === 'desc') {
+        return '▼';
+      }
+
+      return '↕';
     }
 
     function calculateKpis(rows) {
@@ -1348,25 +1324,11 @@
     function getLocalCategory(value) {
       const local = normalizeValue(value).replace(/[\s_-]/g, '');
 
-      if (local.indexOf('bfmz') >= 0) {
-        return 'bfmz';
-      }
-
-      if (local.indexOf('bfse') >= 0) {
-        return 'bfse';
-      }
-
-      if (local.indexOf('bfpp') >= 0) {
-        return 'bfpp';
-      }
-
-      if (local.indexOf('efa') >= 0) {
-        return 'efa';
-      }
-
-      if (local.indexOf('efi') >= 0 || local.indexOf('ef') >= 0) {
-        return 'outros';
-      }
+      if (local.indexOf('bfmz') >= 0) return 'bfmz';
+      if (local.indexOf('bfse') >= 0) return 'bfse';
+      if (local.indexOf('bfpp') >= 0) return 'bfpp';
+      if (local.indexOf('efa') >= 0) return 'efa';
+      if (local.indexOf('efi') >= 0 || local.indexOf('ef') >= 0) return 'outros';
 
       return 'outros';
     }
@@ -1374,9 +1336,7 @@
     function getSerieCategory(value) {
       const serie = normalizeValue(value).replace(/[\s_-]/g, '');
 
-      if (serie === 'bo') {
-        return 'bo';
-      }
+      if (serie === 'bo') return 'bo';
 
       if (
         serie === 'es' ||
@@ -1394,24 +1354,13 @@
       const aging = parseBrazilianNumber(row[resolvedColumns.aging]);
 
       if (tipoSerie === 'bo') {
-        if (aging <= 1) {
-          return 'dentro';
-        }
-
-        if (aging === 2) {
-          return 'alerta';
-        }
-
+        if (aging <= 1) return 'dentro';
+        if (aging === 2) return 'alerta';
         return 'fora';
       }
 
-      if (aging <= 4) {
-        return 'dentro';
-      }
-
-      if (aging === 5) {
-        return 'alerta';
-      }
+      if (aging <= 4) return 'dentro';
+      if (aging === 5) return 'alerta';
 
       return 'fora';
     }
@@ -1672,6 +1621,11 @@
             visibleHeaders = visibleHeaders.filter(function(item) {
               return item !== header;
             });
+
+            if (sortState.column === header) {
+              sortState.column = null;
+              sortState.direction = null;
+            }
           }
 
           visibleHeaders = swapDataEntradaRemanejamento(visibleHeaders);
@@ -1711,7 +1665,23 @@
 
       headersToRender.forEach(function(header) {
         const th = document.createElement('th');
-        th.textContent = header;
+        th.className = 'sortable-th';
+        th.title = 'Clique para ordenar crescente/decrescente';
+
+        const label = document.createElement('span');
+        label.textContent = header;
+
+        const icon = document.createElement('span');
+        icon.className = 'sort-icon';
+        icon.textContent = getSortIcon(header);
+
+        th.appendChild(label);
+        th.appendChild(icon);
+
+        th.addEventListener('click', function() {
+          toggleSortColumn(header);
+        });
+
         headerRow.appendChild(th);
       });
 
@@ -1723,6 +1693,36 @@
         headersToRender.forEach(function(header) {
           const td = document.createElement('td');
           td.textContent = row[header] || '';
+          td.contentEditable = true;
+          td.className = 'editable-cell';
+
+          td.addEventListener('click', function(event) {
+            event.stopPropagation();
+          });
+
+          td.addEventListener('blur', function() {
+            const newValue = td.textContent.trim();
+
+            if (String(row[header] || '') !== newValue) {
+              row[header] = newValue;
+              td.classList.add('edited-cell');
+
+              let filteredRows = getCurrentFilteredRowsWithoutRender();
+              filteredRows = sortRows(filteredRows);
+
+              calculateKpis(filteredRows);
+              updateFilterCounts(importedRows);
+              updateFilterSummaries(filteredRows.length);
+            }
+          });
+
+          td.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              td.blur();
+            }
+          });
+
           tr.appendChild(td);
         });
 
