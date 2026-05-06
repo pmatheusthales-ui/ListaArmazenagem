@@ -391,18 +391,62 @@
     }
 
     .sortable-th {
-      cursor: pointer;
       user-select: none;
     }
 
-    .sortable-th:hover {
-      background: #eef2f7;
+    .sortable-label {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sortable-label:hover {
+      color: var(--accent);
     }
 
     .sort-icon {
-      margin-left: 6px;
       color: var(--muted);
       font-size: 11px;
+    }
+
+    .th-content {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .column-move-buttons {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-left: 4px;
+    }
+
+    .column-move-button {
+      appearance: none;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: var(--primary);
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1;
+      transition: 0.15s ease;
+    }
+
+    .column-move-button:hover:not(:disabled) {
+      background: #eff6ff;
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .column-move-button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
     }
 
     tr:hover td {
@@ -494,7 +538,8 @@
 
       .search-input,
       .column-filter,
-      .print-actions {
+      .print-actions,
+      .column-move-buttons {
         display: none !important;
       }
 
@@ -719,81 +764,29 @@
 
     const columnAliases = {
       disponivel: [
-        'disponivel',
-        'disponível',
-        'qtd disponivel',
-        'qtd disponível',
-        'quantidade disponivel',
-        'quantidade disponível',
-        'saldo disponivel',
-        'saldo disponível',
-        'pecas',
-        'peças',
-        'DisponÃ­vel'
+        'disponivel', 'disponível', 'qtd disponivel', 'qtd disponível',
+        'quantidade disponivel', 'quantidade disponível', 'saldo disponivel',
+        'saldo disponível', 'pecas', 'peças', 'DisponÃ­vel'
       ],
       notaFiscal: [
-        'nota fiscal',
-        'notas fiscais',
-        'nf',
-        'nfs',
-        'grec',
-        'grecs',
-        'numero nf',
-        'número nf',
-        'num nf',
-        'documento',
-        'nota',
-        'nfe',
-        'nf-e'
+        'nota fiscal', 'notas fiscais', 'nf', 'nfs', 'grec', 'grecs',
+        'numero nf', 'número nf', 'num nf', 'documento', 'nota', 'nfe', 'nf-e'
       ],
       tipoSerieMbb: [
-        'tipo/serie mbb',
-        'tipo/série mbb',
-        'tipo serie mbb',
-        'tipo série mbb',
-        'tipo-serie mbb',
-        'tipo-série mbb',
-        'serie mbb',
-        'série mbb',
-        'tipo mbb',
-        'tipo serie',
-        'tipo/série',
-        'SÃ©rie',
-        'Série'
+        'tipo/serie mbb', 'tipo/série mbb', 'tipo serie mbb', 'tipo série mbb',
+        'tipo-serie mbb', 'tipo-série mbb', 'serie mbb', 'série mbb',
+        'tipo mbb', 'tipo serie', 'tipo/série', 'SÃ©rie', 'Série'
       ],
       local: [
-        'local',
-        'localizacao',
-        'localização',
-        'endereco',
-        'endereço',
-        'deposito',
-        'depósito',
-        'area',
-        'área',
-        'posicao',
-        'posição',
-        'local armazenagem',
-        'local de armazenagem',
-        'armazem',
-        'armazém'
+        'local', 'localizacao', 'localização', 'endereco', 'endereço',
+        'deposito', 'depósito', 'area', 'área', 'posicao', 'posição',
+        'local armazenagem', 'local de armazenagem', 'armazem', 'armazém'
       ],
       aging: [
-        'aging',
-        'ageing',
-        'dias',
-        'dias estoque',
-        'dias em estoque',
-        'tempo estoque',
-        'tempo em estoque',
-        'idade estoque',
-        'idade do estoque',
-        'aging estoque',
-        'aging armazenagem',
-        'dias ag estocagem',
-        'dias ag armazenagem',
-        'dias aging estocagem',
-        'dias aging armazenagem'
+        'aging', 'ageing', 'dias', 'dias estoque', 'dias em estoque',
+        'tempo estoque', 'tempo em estoque', 'idade estoque', 'idade do estoque',
+        'aging estoque', 'aging armazenagem', 'dias ag estocagem',
+        'dias ag armazenagem', 'dias aging estocagem', 'dias aging armazenagem'
       ]
     };
 
@@ -828,21 +821,13 @@
 
     selectAllColumns.addEventListener('click', function() {
       visibleHeaders = getDefaultDisplayHeaders(importedHeaders);
-
-      document.querySelectorAll('.column-checkbox').forEach(function(checkbox) {
-        checkbox.checked = visibleHeaders.indexOf(checkbox.value) >= 0;
-      });
-
+      syncColumnCheckboxOrder();
       applyFiltersAndRender();
     });
 
     clearAllColumns.addEventListener('click', function() {
       visibleHeaders = [];
-
-      document.querySelectorAll('.column-checkbox').forEach(function(checkbox) {
-        checkbox.checked = false;
-      });
-
+      syncColumnCheckboxOrder();
       applyFiltersAndRender();
     });
 
@@ -863,7 +848,6 @@
         const value = button.dataset.filterValue;
 
         activeFilters[group] = value;
-
         updateActivePills(group, value);
         applyFiltersAndRender();
       });
@@ -1276,6 +1260,33 @@
       return '↕';
     }
 
+    function moveVisibleColumn(header, direction) {
+      const currentIndex = visibleHeaders.indexOf(header);
+
+      if (currentIndex < 0) return;
+
+      const newIndex = currentIndex + direction;
+
+      if (newIndex < 0 || newIndex >= visibleHeaders.length) return;
+
+      const updatedHeaders = visibleHeaders.slice();
+
+      const temp = updatedHeaders[currentIndex];
+      updatedHeaders[currentIndex] = updatedHeaders[newIndex];
+      updatedHeaders[newIndex] = temp;
+
+      visibleHeaders = updatedHeaders;
+
+      syncColumnCheckboxOrder();
+      applyFiltersAndRender();
+    }
+
+    function syncColumnCheckboxOrder() {
+      document.querySelectorAll('.column-checkbox').forEach(function(checkbox) {
+        checkbox.checked = visibleHeaders.indexOf(checkbox.value) >= 0;
+      });
+    }
+
     function calculateKpis(rows) {
       const total = getMetrics(rows);
 
@@ -1628,7 +1639,6 @@
             }
           }
 
-          visibleHeaders = swapDataEntradaRemanejamento(visibleHeaders);
           applyFiltersAndRender();
         });
 
@@ -1649,7 +1659,7 @@
       }
 
       const headersToRender = visibleHeaders.length
-        ? swapDataEntradaRemanejamento(visibleHeaders)
+        ? visibleHeaders.slice()
         : [];
 
       if (!headersToRender.length) {
@@ -1663,10 +1673,17 @@
 
       const headerRow = document.createElement('tr');
 
-      headersToRender.forEach(function(header) {
+      headersToRender.forEach(function(header, index) {
         const th = document.createElement('th');
         th.className = 'sortable-th';
-        th.title = 'Clique para ordenar crescente/decrescente';
+        th.title = 'Clique no nome para ordenar ou use as setas para mover a coluna';
+
+        const content = document.createElement('span');
+        content.className = 'th-content';
+
+        const sortableLabel = document.createElement('span');
+        sortableLabel.className = 'sortable-label';
+        sortableLabel.title = 'Clique para ordenar crescente/decrescente';
 
         const label = document.createElement('span');
         label.textContent = header;
@@ -1675,13 +1692,48 @@
         icon.className = 'sort-icon';
         icon.textContent = getSortIcon(header);
 
-        th.appendChild(label);
-        th.appendChild(icon);
+        sortableLabel.appendChild(label);
+        sortableLabel.appendChild(icon);
 
-        th.addEventListener('click', function() {
+        sortableLabel.addEventListener('click', function(event) {
+          event.stopPropagation();
           toggleSortColumn(header);
         });
 
+        const moveButtons = document.createElement('span');
+        moveButtons.className = 'column-move-buttons';
+
+        const moveLeftButton = document.createElement('button');
+        moveLeftButton.type = 'button';
+        moveLeftButton.className = 'column-move-button';
+        moveLeftButton.textContent = '◀';
+        moveLeftButton.title = 'Mover coluna para a esquerda';
+        moveLeftButton.disabled = index === 0;
+
+        moveLeftButton.addEventListener('click', function(event) {
+          event.stopPropagation();
+          moveVisibleColumn(header, -1);
+        });
+
+        const moveRightButton = document.createElement('button');
+        moveRightButton.type = 'button';
+        moveRightButton.className = 'column-move-button';
+        moveRightButton.textContent = '▶';
+        moveRightButton.title = 'Mover coluna para a direita';
+        moveRightButton.disabled = index === headersToRender.length - 1;
+
+        moveRightButton.addEventListener('click', function(event) {
+          event.stopPropagation();
+          moveVisibleColumn(header, 1);
+        });
+
+        moveButtons.appendChild(moveLeftButton);
+        moveButtons.appendChild(moveRightButton);
+
+        content.appendChild(sortableLabel);
+        content.appendChild(moveButtons);
+
+        th.appendChild(content);
         headerRow.appendChild(th);
       });
 
